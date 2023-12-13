@@ -9,8 +9,21 @@
 #include <utility>
 #include <vector>
 #include <numeric>
+#include <unordered_set>
 
 using namespace std;
+
+//funcion para medir el tiempo de ejecucion
+template<typename Func>
+double medirTiempo(Func&& func, std::vector<int>& datos, bool orden) 
+{
+    auto inicio = std::chrono::steady_clock::now();
+    //ejecuta el algoritmo de busqueda con el booleano para el orden
+    func(datos, orden); 
+    auto fin = std::chrono::steady_clock::now();
+
+    return std::chrono::duration<double, std::milli>(fin - inicio).count();
+}
 
 
 
@@ -55,6 +68,7 @@ void heapify(vector<int>& datos, int tamano, int indice, bool orden)
 void heapSort(vector<int>& datos, bool orden)
 {
     int tamano = datos.size();
+
     for (int i = tamano / 2 - 1; i >= 0; --i)
     {
         heapify(datos, tamano, i, orden);
@@ -182,6 +196,13 @@ void mergeSort(vector<int>& datos, int inicio, int fin, bool orden)
     }
 }
 
+//funcion envoltorio para el MergeSort
+void mergeSortWrapper(vector<int>& datos, bool orden) {
+    int inicio = 0;
+    int fin = datos.size() - 1;
+    mergeSort(datos, inicio, fin, orden);
+}
+
 void selectionSort(vector<int>& datos, bool orden)
 {
     int tamano = datos.size();
@@ -210,10 +231,10 @@ void selectionSort(vector<int>& datos, bool orden)
     }
 }
 
-
 void bubbleSort(vector<int>& datos, bool orden)
 {
     int tamano = datos.size();
+
     for (int i = 0; i < tamano - 1; ++i)
     {
         for (int j = 0; j < tamano - i - 1; ++j)
@@ -239,6 +260,7 @@ void bubbleSort(vector<int>& datos, bool orden)
 void insertionSort(vector<int>& datos, bool orden)
 {
     int tamano = datos.size();
+
     for (int i = 1; i < tamano; ++i)
     {
         int valorActual = datos[i];
@@ -266,12 +288,14 @@ void insertionSort(vector<int>& datos, bool orden)
 void shellSort(vector<int>& datos, bool orden)
 {
     int tamano = datos.size();
+
     for (int brecha = tamano / 2; brecha > 0; brecha /= 2)
     {
         for (int i = brecha; i < tamano; ++i)
         {
             int valorActual = datos[i];
             int j = i;
+
             if (orden)
             {
                 while (j >= brecha && datos[j - brecha] > valorActual)
@@ -307,33 +331,52 @@ vector<int> generarOrden(int totalElementos, bool ascendente)
 {
     vector<int> datos(totalElementos);
     if (ascendente) 
-    {
+    {   
         for (int i = 0; i < totalElementos; ++i) 
         {
-            datos[i] = i; // Generar elementos en orden ascendente
+            //generar elementos en orden ascendente
+            datos[i] = i; 
         }
-    } else 
+    } 
+    else 
     {
         for (int i = 0; i < totalElementos; ++i)
-         {
-            datos[i] = totalElementos - i - 1; // Generar elementos en orden descendente
+        {
+            //generar elementos en orden descendente
+            datos[i] = totalElementos - i - 1; 
         }
     }
     return datos;
 }
 
+//funcion para generar elementos aleatorios
+vector<int> generarAleatorioConRepeticion(int totalElementos) {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distribucion(1, totalElementos);
 
+    vector<int> datos;
+    for (int i = 0; i < totalElementos; ++i) {
+        datos.push_back(distribucion(gen)); // Agregar elementos aleatorios al vector
+    }
+    return datos;
+}
 
-//funcion para medir el tiempo de ejecucion
-template<typename Func>
-double medirTiempo(Func&& func, std::vector<int>& datos) 
-{
-    auto inicio = std::chrono::steady_clock::now();
-    // Ejecutar el algoritmo de busqueda
-    func(datos); 
-    auto fin = std::chrono::steady_clock::now();
+//funcion para generar elementos aleatorios únicos
+unordered_set<int> generarAleatorioUnicos(int totalElementos) {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distribucion(1, totalElementos);
 
-    return std::chrono::duration<double, std::milli>(fin - inicio).count();
+    unordered_set<int> datos;
+    while (datos.size() < totalElementos) {
+        int valor = distribucion(gen);
+        // insertar el valor solo si no esta presente en el conjunto
+        if (datos.find(valor) == datos.end()) {
+            datos.insert(valor);
+        }
+    }
+    return datos;
 }
 
 //funcion para imprimir el menu
@@ -347,33 +390,52 @@ void mostrarMenu()
     cout << "*              Ingrese su opcion           *";
 }
 
+// Convertir unordered_set a vector
+vector<int> convertirUnorderedSetAVector(const unordered_set<int>& datosSinRepeticion) 
+{
+    vector<int> vectorDatos(datosSinRepeticion.begin(), datosSinRepeticion.end());
+    return vectorDatos;
+}
+
 int main() 
 {
     int opcion;
     bool salir = false;
 
+
     //genera un total de jugadores para cola de espera (100,000 a 110,000)
     int totalColasEspera = generarTotal(100000, 110000, 1);
-    cout << "Total de jugadores en cola de espera: " << totalColasEspera << endl;
+    cout << "Total de jugadores en Colas de Espera: " << totalColasEspera << endl;
+
 
     //generar vectores ascendente y descendente a partir del total de jugadores
     vector<int> datosAscendentesColaEspera = generarOrden(totalColasEspera, true);
     vector<int> datosDescendentesColaEspera = generarOrden(totalColasEspera, false);
+    vector<int> datosConRepeticionColaEspera = generarAleatorioConRepeticion(totalColasEspera);
+    unordered_set<int> datosSinRepeticionColaEspera = generarAleatorioUnicos(totalColasEspera);
+    vector<int> vectorDatosSinRepeticionColaEspera = convertirUnorderedSetAVector(datosSinRepeticionColaEspera);
 
-    // Generar total de objetos para Trazabilidad de Objetos (1000 a 1500 por cada categoría, 15 categorías)
+
+    //generar un total de objetos para la trazabilidad de objetos (1000 a 1500 por cada categoria, 15 categorias)
     int totalTrazabilidadObjetos = generarTotal(1000, 1500, 15);
-    cout << "Total de objetos en Trazabilidad de Objetos: " << totalTrazabilidadObjetos << endl;
+    cout << "Total de objetos en trazabilidad de objetos: " << totalTrazabilidadObjetos << endl;
 
     //generar vectores ascendente y descendente a partir del total de objetos
     vector<int> datosAscendentesObjetos = generarOrden(totalTrazabilidadObjetos, true);
     vector<int> datosDescendentesObjetos = generarOrden(totalTrazabilidadObjetos, false);
+    vector<int> datosConRepeticionObjetos = generarAleatorioConRepeticion(totalTrazabilidadObjetos);
+    unordered_set<int> datosSinRepeticionObjetos = generarAleatorioUnicos(totalTrazabilidadObjetos);
+    vector<int> vectorDatosSinrepeticionObjetos = convertirUnorderedSetAVector(datosSinRepeticionObjetos);
 
-    //generar total de posibles combinaciones de eventos para Eventos de Escenario (60,000 a 80,000)
+    //generar total de posibles combinaciones de eventos para eventos de escenario (60,000 a 80,000)
     int totalEventosEscenario = generarTotal(60000, 80000, 1);
-    cout << "Total de posibles combinaciones de eventos en Escenario: " << totalEventosEscenario << endl;
+    cout << "Total de posibles combinaciones de eventos en escenario: " << totalEventosEscenario << endl;
 
     vector<int> datosAscendentesEventos = generarOrden(totalEventosEscenario, true);
     vector<int> datosDescendentesEventos = generarOrden(totalEventosEscenario, false);
+    vector<int> datosConRepeticionEventos = generarAleatorioConRepeticion(totalEventosEscenario);
+    unordered_set<int> datosSinRepeticionEventos = generarAleatorioUnicos(totalEventosEscenario);
+    vector<int> vectorDatosSinrepeticionEventos = convertirUnorderedSetAVector(datosSinRepeticionEventos);
 
 
 
@@ -385,29 +447,44 @@ int main()
         switch (opcion) 
         {
             case 1:
+                
+                //logica para la carrera de colas de espera
+                cout << "Realizando Carrera de colas de espera..." << endl;
 
-                //implementar logica para la carrera de Colas de Espera
-                cout << "Realizando carrera de cola de espera..." << endl;
-                //implementa la logica para esta carrera
                 break;
-
+                
             case 2:
-                //implementar logica para la carrera de Trazabilidad de Objetos
-                cout << "Realizando carrera de trazabilidad de objetos..." << endl;
+
+                //logica para la carrera de trazabilidad de objetos
+                cout << "Realizando Carrera de Trazabilidad de objetos..." << endl;
                 //implementa la logica para esta carrera
                 break;
 
             case 3:
-                //implementar logica para la carrera de Eventos de Escenario
+
+                //logica para la carrera de eventos de escenario
                 cout << "Realizando carrera de eventos de escenario..." << endl;
-                //implementa la logica para esta carrera
+                double tiempoAscendente, tiempoDescendente, tiempoConRepeticion, tiempoSinRepeticion;
+
+                //medicion del tiempo para el insertionSort con diferentes conjuntos de datos de eventos
+                tiempoAscendente = medirTiempo(mergeSortWrapper, datosAscendentesEventos, true);
+                tiempoDescendente = medirTiempo(mergeSortWrapper, datosDescendentesEventos, true);
+                tiempoConRepeticion = medirTiempo(mergeSortWrapper, datosConRepeticionEventos, true);
+                tiempoSinRepeticion = medirTiempo(mergeSortWrapper, vectorDatosSinrepeticionEventos, true);
+
+                //imprimir tiempos de ejecucion
+                cout << "Tiempo de ejecucion de mergeSortWrapper con datos ascendentes: " << tiempoAscendente << " milisegundos" << std::endl;
+                cout << "Tiempo de ejecucion de mergeSortWrapper con datos descendentes: " << tiempoDescendente << " milisegundos" << std::endl;
+                cout << "Tiempo de ejecucion de mergeSortWrapper con datos con repeticion: " << tiempoConRepeticion << " milisegundos" << std::endl;
+                cout << "Tiempo de ejecucion de mergeSortWrapper con datos sin repeticion: " << tiempoSinRepeticion << " milisegundos" << std::endl;
+                
+
                 break;
 
             case 4:
                 salir = true;
                 cout << "Gracias por usar el programa, saliendo..." << endl;
                 break;
-                
             default:
                 cout << "Opcion no valida. Por favor, ingrese una opcion valida." << endl;
                 break;
