@@ -210,6 +210,7 @@ void selectionSort(vector<int>& datos, bool orden)
     }
 }
 
+
 void bubbleSort(vector<int>& datos, bool orden)
 {
     int tamano = datos.size();
@@ -292,19 +293,126 @@ void shellSort(vector<int>& datos, bool orden)
     }
 }
 
+//funcion para generar aleatoriamente el total de elementos para las carreras segun se requiera 
+int generarTotal(int min, int max, int ext) 
+{
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distribucion(min, max);
+    return distribucion(gen) * ext;
+}
+
+//funcion para generar elementos en orden ascendente o descendente
+vector<int> generarOrden(int totalElementos, bool ascendente) 
+{
+    vector<int> datos(totalElementos);
+    if (ascendente) 
+    {
+        for (int i = 0; i < totalElementos; ++i) 
+        {
+            datos[i] = i; // Generar elementos en orden ascendente
+        }
+    } else 
+    {
+        for (int i = 0; i < totalElementos; ++i)
+         {
+            datos[i] = totalElementos - i - 1; // Generar elementos en orden descendente
+        }
+    }
+    return datos;
+}
+
+
 
 //funcion para medir el tiempo de ejecucion
 template<typename Func>
-double medirTiempo(Func&& func, std::vector<int>& datos) {
+double medirTiempo(Func&& func, std::vector<int>& datos) 
+{
     auto inicio = std::chrono::steady_clock::now();
-    //ejecuta el algoritmo de busqueda
-    func(datos);
+    // Ejecutar el algoritmo de busqueda
+    func(datos); 
     auto fin = std::chrono::steady_clock::now();
 
     return std::chrono::duration<double, std::milli>(fin - inicio).count();
 }
 
-int main() {
+//funcion para imprimir el menu
+void mostrarMenu() 
+{
+    cout << "******************* Menu *******************" << endl;
+    cout << "*          1. Carrera de Colas de Espera   *" << endl;
+    cout << "*  2. Carrera de Trazabilidad de Objetos   *" << endl;
+    cout << "*    3. Carrera de Eventos de Escenario    *" << endl;
+    cout << "*                4. Salir                  *" << endl;
+    cout << "*              Ingrese su opcion           *";
+}
+
+int main() 
+{
+    int opcion;
+    bool salir = false;
+
+    //genera un total de jugadores para cola de espera (100,000 a 110,000)
+    int totalColasEspera = generarTotal(100000, 110000, 1);
+    cout << "Total de jugadores en cola de espera: " << totalColasEspera << endl;
+
+    //generar vectores ascendente y descendente a partir del total de jugadores
+    vector<int> datosAscendentesColaEspera = generarOrden(totalColasEspera, true);
+    vector<int> datosDescendentesColaEspera = generarOrden(totalColasEspera, false);
+
+    // Generar total de objetos para Trazabilidad de Objetos (1000 a 1500 por cada categoría, 15 categorías)
+    int totalTrazabilidadObjetos = generarTotal(1000, 1500, 15);
+    cout << "Total de objetos en Trazabilidad de Objetos: " << totalTrazabilidadObjetos << endl;
+
+    //generar vectores ascendente y descendente a partir del total de objetos
+    vector<int> datosAscendentesObjetos = generarOrden(totalTrazabilidadObjetos, true);
+    vector<int> datosDescendentesObjetos = generarOrden(totalTrazabilidadObjetos, false);
+
+    //generar total de posibles combinaciones de eventos para Eventos de Escenario (60,000 a 80,000)
+    int totalEventosEscenario = generarTotal(60000, 80000, 1);
+    cout << "Total de posibles combinaciones de eventos en Escenario: " << totalEventosEscenario << endl;
+
+    vector<int> datosAscendentesEventos = generarOrden(totalEventosEscenario, true);
+    vector<int> datosDescendentesEventos = generarOrden(totalEventosEscenario, false);
+
+
+
+    while (!salir) 
+    {
+        mostrarMenu();
+        cin >> opcion;
+
+        switch (opcion) 
+        {
+            case 1:
+
+                //implementar logica para la carrera de Colas de Espera
+                cout << "Realizando carrera de cola de espera..." << endl;
+                //implementa la logica para esta carrera
+                break;
+
+            case 2:
+                //implementar logica para la carrera de Trazabilidad de Objetos
+                cout << "Realizando carrera de trazabilidad de objetos..." << endl;
+                //implementa la logica para esta carrera
+                break;
+
+            case 3:
+                //implementar logica para la carrera de Eventos de Escenario
+                cout << "Realizando carrera de eventos de escenario..." << endl;
+                //implementa la logica para esta carrera
+                break;
+
+            case 4:
+                salir = true;
+                cout << "Gracias por usar el programa, saliendo..." << endl;
+                break;
+                
+            default:
+                cout << "Opcion no valida. Por favor, ingrese una opcion valida." << endl;
+                break;
+        }
+    }
 
     return 0;
 }
