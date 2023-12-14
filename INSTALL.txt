@@ -1,0 +1,11 @@
+Instrucciones para compilar el programa:
+    1. Descargar el código fuente del programa.
+        El codigo del programa esta disponible en https://github.com/Romimir/Proyecto3_Algoritmos/edit/main/Proyecto3.cpp
+    2. Instalar un compilador de C++.
+        De preferencia descargar Visual Studio Code e instalar una extencion de c++
+    3. Compilar el programa.
+        Abra una terminal de comandos.
+        Cambie al directorio donde se encuentra el código fuente del programa.
+        Ejecute el siguiente comando: g++ -o (Nombre de la carpeta donde esta el programa) proyecto3.cpp
+
+    4. Ejecutar el programa.
